@@ -1,2 +1,2 @@
 # python-space-invaders
-Nearly faithful recreation of the original Space Invaders game in a single python file with no external artifacts
+This is my attempt at a relatively faithful recreation of the original Space Invaders game in a single Python file with no external artifacts.
