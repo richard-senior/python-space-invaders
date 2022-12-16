@@ -1,8 +1,23 @@
+###
+## R.M.Senior 2022 - Python Space Invaders
+## To the asshats: YES I KNOW:
+##      * You can do it : better, smaller, faster, more efficiently, whilst playing the flute etc. Please go ahead.
+##      * This is not pythonic... Yawn. Go learn Java.
+##      * This has been done a million times before (I know, but I've wanted to do this myself since I was 11)
+##      * It's not completely accurate.. where is the space invader carrying the letter Y etc. (yes I know, I got as near as I could be bothered to)
+##
+## This is pretty simple to follow. I left all the main sprites in bitmap form so you can just play with them.
+
+## Also don't go all, "oh I could have done that in half the size". Very, very boring.
+## You can see how it works, and how to modify it.. Have fun!
+## If you want to get involved, please do so.
+
 import pygame
 import base64
 import io
 import zipfile
 import random
+import copy
 
 # ideas for a background image?
 # https://dev.to/taarimalta/starry-night-with-python-turtle-1lo
@@ -12,7 +27,8 @@ import random
 pygame.init()
 pygame.mixer.init()
 
-columns = 18
+columns = 16
+rows = 14
 tick = 1
 running = True
 dead = 0
@@ -20,8 +36,10 @@ dying = 1
 alive = 2
 right = 1
 playerSpeed = 4
-alienSpeed = 500
+alienSpeed = 600
+speedupRate = 10
 currentDirection = right
+startRow = 1
 invasionLevel = 1
 currentStep = 0
 left = -1
@@ -29,7 +47,7 @@ round = 1
 scale = 4
 width = 256 * scale
 height = 224 * scale
-rowSize = height / columns
+rowSize = height / rows
 colSize = width / columns
 stepSize = 2 * scale
 screen = pygame.display.set_mode((width, height))
@@ -46,6 +64,12 @@ m4 = "UEsDBBQAAAAIAEB4i1Wab/YPGAIAAHYEAAAFAAAAcy53YXaVkyGM2zAUhjN1YEXdpEMhGQkKKQ
 shot = "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"
 hit = "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"
 ################################## SPRITES ####################################
+# 8x8 pixel arrays encoded as bytes then encoded as integers 
+# a-h
+letters = [4547873299252292, 16963558462211132, 15837382733743160, 16963558596428860, 34907313345397884, 34907313345397764, 33781412505339000, 19215359349638212]
+# 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+numbers = [15837796397499448, 4530056895402040, 15837641170224252, 34973404104770616, 9060148223680544, 34907553934623800, 31534011675591736, 34973403564214280, 15833243261879352, 15837659561730076]
+
 # pretty obvious
 # player shot
 r0 = [0, 1, 0]
@@ -301,18 +325,18 @@ r6 = [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0]
 r7 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 saucerExp = [r0, r1, r2, r3, r4, r5, r6, r7]
 
-r0 = [0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0]
-r1 = [0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0]
-r2 = [0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0]
-r3 = [0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0]
-r4 = [0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0]
-r5 = [0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0]
-r6 = [0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0]
-r7 = [0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0]
-r8 = [0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0]
-r9 = [0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0]
-ra = [0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0]
-rb = [0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0]
+r0 = [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0]
+r1 = [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0]
+r2 = [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0]
+r3 = [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0]
+r4 = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0]
+r5 = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0]
+r6 = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0]
+r7 = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0]
+r8 = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0]
+r9 = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0]
+ra = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0]
+rb = [0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0]
 rc = [0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0]
 rd = [0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0]
 re = [0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0]
@@ -321,6 +345,7 @@ shield1 = [r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, ra, rb, rc, rd, re, rf]
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
+TRANSPARENT = (0,0,0,0)
 
 ################### Objects
 class Sample():
@@ -364,19 +389,130 @@ class TimedSprite(StateAware):
         self.animationTickRate = 500
         self.moveTickRate = 500
     def setAnimationTickRate(self, tr): self.animationTickRate = tr
+    def getAnimationTickRate(self): return self.animationTickRate
     def setMoveTickRate(self, tr): self.moveTickRate = tr
+    def getMoveTickRate(self): return self.moveTickRate
     def onUpdate(self): pass
     def animate(self): pass
     def move(self): pass
     def update(self):
         self.onUpdate()
         tr = pygame.time.get_ticks()
-        if tr - self.lastAnimationTick > self.animationTickRate:
+        if tr - self.lastAnimationTick > self.getAnimationTickRate():
             self.lastAnimationTick = tr
             self.animate()
-        if tr - self.lastMoveTick > self.moveTickRate:
+        if tr - self.lastMoveTick > self.getMoveTickRate():
             self.lastMoveTick = tr
             if self.isAlive(): self.move()
+
+
+class CharacterSurface(TimedSprite):
+    score = 0
+    scoreDisplay = []
+    headerDisplay = []
+    l = []
+    n = []
+    # deals with 8x8 pixel characters encoding and decoding them to integers
+    # assumes an 8x8 pixel array. ie [[0,0,0,1,0,1,0,0], [0,1,0,1,0,0,0,0]....]
+    def __init__(self, encoded):
+        TimedSprite.__init__(self)
+        self.x = -50
+        self.y = -50
+        d = CharacterSurface.decode(encoded)
+        f = PixelSprite.createFrames([d])
+        f, r, m = PixelSprite.scale(f, scale)
+        self.frame = f[0]
+    
+    def update(self):
+        if not self.isAlive(): return
+        screen.blit(self.frame, (self.x, self.y))
+    
+    @staticmethod
+    def updateAll():
+        for n in CharacterSurface.scoreDisplay: n.update()
+        #for cs in CharacterSurface.l: cs.update()
+        #for cs in CharacterSurface.n: cs.update()
+    
+    @staticmethod
+    def addToScore(number): 
+        CharacterSurface.score += number
+        CharacterSurface.updateScore()
+
+    @staticmethod
+    def updateScore():
+        sd = []
+        print("score is currently " + str(CharacterSurface.score))
+        for a in reversed(range(0, 4)):
+            d = CharacterSurface.score // 10**a % 10
+            print("character " + str(a) + " of the score number is " + str(d))
+            s = copy.copy(CharacterSurface.n[d])
+            s.y = 100
+            s.x = 100 + (30 * a)
+            s.setState(alive)
+            sd.append(s)
+        CharacterSurface.scoreDisplay = sd
+
+    @staticmethod
+    def encodeTest():
+        r0 = [0, 0, 0, 0, 0, 0, 0, 0]
+        r1 = [0, 0, 0, 0, 0, 0, 0, 0]
+        r2 = [0, 0, 0, 0, 0, 0, 0, 0]
+        r3 = [0, 0, 0, 0, 0, 0, 0, 0]
+        r4 = [0, 0, 0, 0, 0, 0, 0, 0]
+        r5 = [0, 0, 0, 0, 0, 0, 0, 0]
+        r6 = [0, 0, 0, 0, 0, 0, 0, 0]
+        r7 = [0, 0, 0, 0, 0, 0, 0, 0]
+
+        r0 = [0, 0, 0, 0, 0, 0, 0, 0]
+        r1 = [0, 0, 1, 1, 1, 0, 0, 0]
+        r2 = [0, 1, 0, 0, 0, 1, 0, 0]
+        r3 = [0, 1, 0, 0, 0, 1, 0, 0]
+        r4 = [0, 0, 1, 1, 1, 1, 0, 0]
+        r5 = [0, 0, 0, 0, 0, 1, 0, 0]
+        r6 = [0, 0, 0, 0, 1, 0, 0, 0]
+        r7 = [0, 1, 1, 1, 0, 0, 0, 0]
+
+        a = [r0, r1, r2, r3, r4, r5, r6, r7]
+        #print(CharacterSurface.encode(a))
+
+    @staticmethod
+    def initCharacters():
+        for l in letters: CharacterSurface.l.append(CharacterSurface(l))
+        for n in numbers: CharacterSurface.n.append(CharacterSurface(n))
+        CharacterSurface.addToScore(0)
+
+
+    @staticmethod
+    def decode(i):
+        ba = bytearray(i.to_bytes(8, byteorder='big'))
+        rows = []
+        for b in ba:
+            row = [0,0,0,0,0,0,0,0]
+            integer = b
+            n = -1
+            while(integer > 0):
+                digit = integer % 2
+                row[n] = digit
+                n += 1
+                integer = integer // 2
+            rows.append(row)
+        return rows
+
+    @staticmethod
+    def encode(a):
+        # assume 8x8 pixel array
+        ret = []
+        bytes_array = bytearray()
+        for x in range(0, 8):
+            sum = 0
+            for y in reversed(range(0, 8)):
+                if a[x][y]:
+                    sum += 2 ** (y + 1)
+            bytes_array.append(sum)
+        # encode to int
+        ret = int.from_bytes(bytes_array, "big")
+        return ret
+
 
 # class which deals with loading, scaling, animating and collision detecting and the pixelated images above
 class PixelSprite(TimedSprite):
@@ -512,7 +648,7 @@ class Shot(PixelSprite):
         elif isinstance(other, Shield):
             # allow shot to penetrate shield before exploding
             # TODO player shots are reversed!
-            if self.y > (other.y + (self.getHeight() / 2)):
+            if self.y > (other.y - (self.getHeight() / 4)):
                 PixelSprite.onHitEvent(self, other)
         else:
             self.setState(dead)
@@ -566,8 +702,11 @@ class Alien(PixelSprite):
         PixelSprite.__init__(self, Alien.SA[row], Alien.EA)
         self.move()
 
+    def getAnimationTickRate(self): return alienSpeed
+    def getMoveTickRate(self): return alienSpeed
+
     def calculateXY(self):
-        self.y = (invasionLevel * rowSize) + (rowSize * 2) + (rowSize * self.row) + (round * rowSize)
+        self.y = (invasionLevel * rowSize) + rowSize * startRow + (rowSize * self.row) + (round * rowSize)
         self.x = (currentStep * stepSize) + (colSize) + (colSize * self.col)
 
     def isBottom(self):
@@ -587,7 +726,11 @@ class Alien(PixelSprite):
     def onHitEvent(self, other):
         Alien.hit_sound.play()
         PixelSprite.onHitEvent(self, other)
-        # increase alien animation and move speed
+        # TODO calculate score based on alien type
+        CharacterSurface.addToScore(10)
+        # TODO increase alien animation and move speed
+        global alienSpeed, speedupRate
+        alienSpeed -= speedupRate
 
     def move(self):
         self.calculateXY()
@@ -627,6 +770,9 @@ class Player(PixelSprite):
         self.y = height - rowSize
         self.moveStep = 0
         self.setMoveTickRate(2)
+
+    def onHitEvent(self, other):
+        pass
 
     def move(self):
         self.x = self.x + self.moveStep
@@ -686,13 +832,10 @@ class Shield(PixelSprite):
         ox = other.x - self.x
         oy = other.y - self.y
         m = pygame.mask.from_surface(other.currentlyDisplayedFrame)
-        self.frames[0] = pygame.mask.Mask.to_surface(m, surface=self.frames[0], setcolor=None, dest=(ox, oy))
-        #self.frames[0].blit(m, (ox, oy))
+        self.frames[0] = pygame.mask.Mask.to_surface(m, surface=self.frames[0], unsetcolor=None, setcolor=TRANSPARENT, dest=(ox, oy))
 
     def onHitEvent(self, other):
         self.setState(alive)
-        print("shot state is " + str(other.getState()))
-        # different levels of shot penetration
         self.erode(other)
 
     def reset(self):
@@ -708,7 +851,6 @@ class Shield(PixelSprite):
         return na
 
 ########################################## Game Code
-
 def reset():
     invasionLevel = 1
     currentStep = 0
@@ -716,9 +858,12 @@ def reset():
     currentHeight = 0
     o = []
     player = Player.getPlayer()
+    CharacterSurface.initCharacters()
     Saucer.getSaucer()
     Shield.getShield(2)
+    Shield.getShield(5)
     Shield.getShield(8)
+    Shield.getShield(11)
 
     for row in range(0, 5):
         for col in range(0, 11):
@@ -752,4 +897,5 @@ while running:
 
     screen.fill(BLACK)
     for a in o: a.update()
+    CharacterSurface.updateAll()
     pygame.display.update()
