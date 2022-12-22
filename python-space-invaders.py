@@ -1,16 +1,15 @@
 ###
-## R.M.Senior 2022 - Python Space Invaders
-## To the asshats: YES I KNOW:
+## R.M.Senior 2022 - Simple Python Space Invaders
+##
+## To human beings:
+##  You should be able to easily follow and modify this
+##
+## To ass-hats:
+##      * Stealing something and saying you wrote it is straight up lame
 ##      * You can do it : better, smaller, faster, more efficiently, whilst playing the flute etc. Please go ahead.
-##      * This is not pythonic... Yawn. Go learn Java.
+##      * This is not pythonic... Yawn. Go learn Java
 ##      * This has been done a million times before (I know, but I've wanted to do this myself since I was 11)
 ##      * It's not completely accurate.. where is the space invader carrying the letter Y etc. (yes I know, I got as near as I could be bothered to)
-##
-## This is pretty simple to follow. I left all the main sprites in bitmap form so you can just play with them.
-
-## Also don't go all, "oh I could have done that in half the size". Very, very boring.
-## You can see how it works, and how to modify it.. Have fun!
-## If you want to get involved, please do so.
 
 import pygame
 import base64
@@ -55,6 +54,7 @@ clock = pygame.time.Clock()
 FPS = 60
 o = []
 ################################## AUDIO ######################################
+# Audio
 # Base64'd zipfiles named VARNAME.zip, containing a wav named 's.wav'
 # decode, unzip, extract wav, load wav into mixer
 m1 = "UEsDBBQAAAAIABJ4i1VdZd6D/QEAAAIEAAAFAAAAcy53YXaVkiGsm0AcxllqVsWWoDDMoM6gUJgTe2QCc2JDXfLCsgSxYE6dwqAwKFRNFQpTVVVTVYUhE1U1VZgqxELSfXd7vD5R8fp99ydNevD/3Xd/9u3p6e/CMH7Q719//RZfPhmG8QH+TAyU+v3R+Pksnv9gj0zjgFjm0nI8ytO8arb742m4jNN1mqZxvAynY3fYbzfNuioLKdIkZiH1A0ojxnnMWRh4rr0w7mlh2o4XhBHPZF7WzWZ36NSnr+/QOAznU98f9rrzqq7LIpciSxPOGYsiSsH8tpVpkyBiSSpErqX3pjxmEQ084jo2TrhYKKal7XoQcW1zeZ/ZBXOcCo28747DeH1c0wXB9R3wW+CDvshzIIEoJOatG2D8kPE0E0JKmUspRJYloEbEhDiWeQsW5KZlWjfmu+zED+Mkk0W9bneH/vQgu77tvjvstpu2WQF7ThI3TYl564NZAbXIi7Kq66quyrLA8RJ1N4Gvs0XcrzNAiOvqs9yHdohHI57KvFo1WwR+vkwPRT0OZ1DrId20q3qmTnisggypItIz4NiQZYHtxaYuy1bG35DrEkI83/MDPwhoSMMojBiLMehJgoFKM3VT+X8VOH6JVSGBlfJaGWrWTdu0raqN9rzmR9O0sN6otuu38D5Uq6qqWruEsVQPVFGoQtdZQsLgAZP2m0f2D1BLAQI/ABQAAAAIABJ4i1VdZd6D/QEAAAIEAAAFACQAAAAAAAAAIAAAAAAAAABzLndhdgoAIAAAAAAAAQAYAAYiNlJxDdkBoT8LtXMN2QEAV0EB04y+AVBLBQYAAAAAAQABAFcAAAAgAgAAAAA="
@@ -65,12 +65,13 @@ shot = "UEsDBBQAAAAIAJaEi1UBScZCqAgAALwIAAAFAAAAcy53YXYAXgSh+1JJRka0CAAAV0FWRWZt
 hit = "UEsDBBQAAAAIABqMi1W0fnbHvAkAAMwKAAAFAAAAcy53YXYAZgWZ+lJJRkbECgAAV0FWRWZtdCAQAAAAAQABAEAfAABAHwAAAQAIAGRhdGGgCgAAgVmqtSWihTKkv0Zxt0SPsTtrw3xAtnZWwmFbrWZOwF9s8mkwoENIu8HBgzEAg3ui/7MPAAMb6fj/3SYAN6Ck/v9qAAsFa//1/6MAHi9R0//1YQkAFqzY7/9nABQHS/T8/8kRAEY+rP//vTYAH1p57v/SNgoARqi2//9pABAAXuHm/+84ACw/S9f9/60vAA+Bcd//8Y4jADVnff/4/5UXADp2hvL/93kKBwCHusL//3AADgBnyMX3/6AjBwBmg63/8e5tAAI7WJ//9v/EDAAbG2vg//D/fwAEKDJ98vn5/4YACgJAq+rh//BZAAQAMbyy6f//ggAFABqh1cL//8IpAAUAfsCk8//rixwDAFB5j9n/6PWbAgADH4XOuvn925McAABTarDb1f/3oyUJAC5shN3s4P/gaBIAAEhzp9nJ//S6ahcADEZrsefP5v/RaxwCAD51kdLs0/b7myUBAAluiaXS7tfo94wYAAMAc6+ksenk0vSjMgAFAEunn77Wv934u30yAAIiWpDOw5/Z6sLXnxcAAQNasKGyz7DA5tWfdx0AAg1Vm9S0ocm1wtqpci0BABlRfrrOqbDDstDHkXYvAgAhWYLFvae7rqbF0aaSZgkBARhaqMWowamNtsiwtqJvQA8ACUpzmsS1pLWblsO2pK2YUSUOABNai562vaaapoqewKqdp3xUJwATLUOAtKy3s5aYmoWft6KaoYFoQQsJJUVcjrS8qqqpi4+PhaCvopWWim9HKRkTOVJtmLeyrLGajpeJfY6XnKaXh4l/aFQtGSw5SWiQoK64qZ6glIqPhX+LjI2fn46GhXNzb00yMDc8Vmlwk6isr62dmZWLjYyEgYeCgImOj5eLg35/b3J4WRoAGWSVx/+oRTCsxEdAtcdBRLvKQT+9x0E6vMdDM73IQiu+ykgpuMtJI67SVB+i3GAakt9tGYLkehts6oYfV+yYJ0Xiryo3y8c4LqzeSSaM9FYgc/5yKFjqmyU+zsYoMq3vNDF6/lcvU/iMIkHZxiU6nPU2Mmn/YS5E6KklNrnuJjts/1swRfqqJjuq7jQ0ZP9sLUDXyiU0iv9KL0j/oiI6oPQ5MVz/hSo4v/AtOmH/fyU/vOIxNmX/fic6wPMuN1z/jSI+ovg9MFLtrCU7jf9ZLUfX0Cs5bf+AKUCq/EExTezEKTp0/3ooQqz8SDJO3c0tPWf5mSc/iv5mKkeu8j8rRtTOHzpd/p4fQHj/eCRDlP1eKkis9UUzSs/rNTlV2NMvOlzgxChBYfa6JEZm7q4mP2v7riJJae+nJUZq+bAlRWPrtSZAYezCKUFc380rPlrN2zg5U8bxQjRMqfhVK0+O+XkhS3n0nSFIZujFLUFWyec+NFCf/2MpTnj6nSVLX9vXMz1Rp/xjKlB3+qQlSV3N5kMzVZH8iSVNZtfRNzpUm/Z3IlBo3c0wPlWf+3soTmnS1j01W4z3kiJMYsLuWCpYd+TBKkFemPqKKFFjvOlULVpy3NM5NlmD96osR16X9IgkUWOy8XMjVGnB72EqWGvP4k8wXW7T10AqWW7V1UMuXHHW1UYuX3LT2U8rX27L41wpXGu772woVWyn9HwnUGeR+J8xQmeE48c6N2F4w+pSMlN0nfqJL0dqg+LFM0FYfrL5YzJLcovvrjM8XX+39VM2RHaI7bQwQFmApPpxLkVvgM/fQjZQfYztri4+Wnyd+X0tRGuBtvFhN0hvgcToVDNOdIHN4EY3UHmD0NlEOUt6gc7bRzVPeoLH4lIyTHWAuutjMkltg6TzgytKDI9ZTxNRAIX/jYkJsrbIYkALlEV2ESik1FBALN2bAoXOzJ3bWe46U6QRDVKMQgARDMKDhZggIXEJqCE+aKJ9EJfEaDTxD9in83ByTr7PDfmfrQJbbwIeZZtK20PKg39K/mWXgj+8spVdmUys/KZn7W4VHX9qL+oI6be+ZCrLe+L6/V+pklqngjb+grP1Dlna+Dp5pnFAUR9/n8prccn68k9SUOOS2J3TtYpy5wRhxyetlvagStZ/aPk1I3GafHvUYOkIKebCtzlrdf8UYZunkSL76DQzdj8PFdZ5AOV7H51FDR5I+FbWn1c7LGrJe9lU0cW+mGqaxwd2a3MAGsmVrFpS5ZzSkizzfuhcs1tSk+bhYXd+65iEGdt/0ZffOgKQYWyf+ArrB0Uds7vv0mWVfVEZz5hbb/yF9mEBEWN279BR2OQRCTeNzHNHceMNATGDr72OWatdcWyaZGb/SVtxh18mSU7nXi5UWdt8ADOszRws2S2dfogNRtCjA29x7eA0MThFLLPTbWkey4lwhM2NzKilwR3HjDNdTz1bbCjtCQFGONGV2b10s7XTJ+dWGCnq0tPxMttATKeMIQwT6V214kJ/VCOc6roMleXtSLntWgxxxpGiACm5M991vtUrIU6okpAloK6shytsrknEMNUghAlBu71ptFR0BnMolGhqAkhApEsPJy7ZnBMK5QZSYAKIUBTp4qpQX+2IJCjDWFWhBIEoQmCkl0FTdVdYogbXZFkU5WlBEKW4oKYWZ6/X1A2Oq9RkVIcQwNw1AHEgSaKemk+F2my9IYUZlOgalHO1IEJZkgQhLkg5CpK6yceu1vV4ZGJiphmro2Ev594o5b4oyyVivijBgSDB4QBDgSDTIyH8n4J5XWoQBgIo/Lw6Vsh1d8MmEKjcAoQOFluf1vr3nJmvB9H3VMbEJeVY4B4v5giF3oPS6WplzLZszlLStza41kalLOWYP5w7CIsHK711GsIpCZ+fLG9XW077G9OpXflkge1hwf0UXq1JQZsli99aWt6EgpuBMm3vzpzemHECTXfJclkulX14Re0GlvbX6hdw4haAqrvxep6LRt0rID5FUNMkgt0DAGfyupvwXzKIfZKsD2+AD4Fm+nIA3QoOxiRqm6NhXDvrMNe6cnNNgHsjXLUyIGXWVCXvADMbpqV5tSUi4zAbdu3qgLoBmeqFHLs1msDjAMxxQOS41Nb7scXwVyIZJTcQgzD00O00axASxt5NMtNDl2x/hNF7/gP76Y+Ybw766zoC+Tu+Dnv7d/xc64Ejt5tjb1jomQ/ZKgNz7XbnZQjVCSNf4ZDOPGTXAoSzjnDV8rZLTmjRPWbZCFY5IqrC0G8gjqwYIM/pTl+zK26ZdB8ehM0RyCULsN0Pr45kTSMUJ3uLnGgexU9mthScHWpTzZk3kjYSZHdJooQ2XRzuLWdE25n8/9F+SD2CjNmdgvfaIukUGnN2ybwpeir+AFBLAQI/ABQAAAAIABqMi1W0fnbHvAkAAMwKAAAFACQAAAAAAAAAIAAAAAAAAABzLndhdgoAIAAAAAAAAQAYADljA5iGDdkBoDiwOogN2QEAV0EB04y+AVBLBQYAAAAAAQABAFcAAADfCQAAAAA="
 ################################## SPRITES ####################################
 # 8x8 pixel arrays encoded as bytes then encoded as integers 
-# a-h
-letters = [4547873299252292, 16963558462211132, 15837382733743160, 16963558596428860, 34907313345397884, 34907313345397764, 33781412505339000, 19215359349638212]
+# a-z
+letters = [4547873299252292, 16963558462211132, 15837382733743160, 16963558596428860, 34907313345397884, 34907313345397764, 33781412505339000, 19215359349638212, 15780259870806072, 18085043209520184, 19179966936917060, 1130315200595068, 19259407863137348, 19215393040385092, 15837658689586232, 16963558458000388, 15837658690626648, 16963558459057220, 15837383610090552, 34920558287130640, 19215358410114104, 19215358410106896, 19215358679608388, 19215237276779588, 19215237275193360, 34973403564213372]
 # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
-numbers = [15837796397499448, 4530056895402040, 15837641170224252, 34973404104770616, 9060148223680544, 34907553934623800, 31534011675591736, 34973403564214280, 15833243261879352, 15837659561730076]
+numbers = [15837796397499448, 4530056895402040, 15837641170224252, 34973404104770616, 9060148223680544, 34907553934623800, 31534011675591736, 34973403564214280, 15837658488259640, 15837659561730076]
+# SPACE, <, >, -
+specialCharacters = [0, 9024825868161056, 2269530514526216, 2080374784]
 
-# pretty obvious
 # player shot
 r0 = [0, 1, 0]
 r1 = [0, 1, 0]
@@ -345,6 +346,10 @@ shield1 = [r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, ra, rb, rc, rd, re, rf]
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
+GREEN = (0, 255, 0)
+CYAN = (0, 255, 255)
+MAGENTA = (255, 0, 255)
+
 TRANSPARENT = (0,0,0,0)
 
 ################### Objects
@@ -388,6 +393,7 @@ class TimedSprite(StateAware):
         self.lastMoveTick = 0
         self.animationTickRate = 500
         self.moveTickRate = 500
+    def getDrawColour(self): return (255, 255, 255)
     def setAnimationTickRate(self, tr): self.animationTickRate = tr
     def getAnimationTickRate(self): return self.animationTickRate
     def setMoveTickRate(self, tr): self.moveTickRate = tr
@@ -405,13 +411,16 @@ class TimedSprite(StateAware):
             self.lastMoveTick = tr
             if self.isAlive(): self.move()
 
-
+# class that displays numbers, letters and screen artifacts like the scrore etc.
 class CharacterSurface(TimedSprite):
+    lives = 3
     score = 0
     scoreDisplay = []
     headerDisplay = []
+    footerDisplay = []
     l = []
     n = []
+    sc = []
     # deals with 8x8 pixel characters encoding and decoding them to integers
     # assumes an 8x8 pixel array. ie [[0,0,0,1,0,1,0,0], [0,1,0,1,0,0,0,0]....]
     def __init__(self, encoded):
@@ -419,10 +428,12 @@ class CharacterSurface(TimedSprite):
         self.x = -50
         self.y = -50
         d = CharacterSurface.decode(encoded)
-        f = PixelSprite.createFrames([d])
+        f = PixelSprite.createFrames([d], self.getDrawColour())
         f, r, m = PixelSprite.scale(f, scale)
         self.frame = f[0]
     
+    def getDrawColour(self): return GREEN
+
     def update(self):
         if not self.isAlive(): return
         screen.blit(self.frame, (self.x, self.y))
@@ -430,9 +441,12 @@ class CharacterSurface(TimedSprite):
     @staticmethod
     def updateAll():
         for n in CharacterSurface.scoreDisplay: n.update()
+        for n in CharacterSurface.headerDisplay: n.update()
+        for n in CharacterSurface.footerDisplay: n.update()
+
         #for cs in CharacterSurface.l: cs.update()
         #for cs in CharacterSurface.n: cs.update()
-    
+
     @staticmethod
     def addToScore(number): 
         CharacterSurface.score += number
@@ -441,13 +455,11 @@ class CharacterSurface(TimedSprite):
     @staticmethod
     def updateScore():
         sd = []
-        print("score is currently " + str(CharacterSurface.score))
         for a in reversed(range(0, 4)):
-            d = CharacterSurface.score // 10**a % 10
-            print("character " + str(a) + " of the score number is " + str(d))
+            d = CharacterSurface.score // 10 ** a % 10
             s = copy.copy(CharacterSurface.n[d])
-            s.y = 100
-            s.x = 100 + (30 * a)
+            s.y = s.frame.get_height() + (scale * 4)
+            s.x = colSize * 4 - (s.frame.get_width() * a)
             s.setState(alive)
             sd.append(s)
         CharacterSurface.scoreDisplay = sd
@@ -467,21 +479,50 @@ class CharacterSurface(TimedSprite):
         r1 = [0, 0, 1, 1, 1, 0, 0, 0]
         r2 = [0, 1, 0, 0, 0, 1, 0, 0]
         r3 = [0, 1, 0, 0, 0, 1, 0, 0]
-        r4 = [0, 0, 1, 1, 1, 1, 0, 0]
-        r5 = [0, 0, 0, 0, 0, 1, 0, 0]
-        r6 = [0, 0, 0, 0, 1, 0, 0, 0]
-        r7 = [0, 1, 1, 1, 0, 0, 0, 0]
+        r4 = [0, 0, 1, 1, 1, 0, 0, 0]
+        r5 = [0, 1, 0, 0, 0, 1, 0, 0]
+        r6 = [0, 1, 0, 0, 0, 1, 0, 0]
+        r7 = [0, 0, 1, 1, 1, 0, 0, 0]
 
         a = [r0, r1, r2, r3, r4, r5, r6, r7]
-        #print(CharacterSurface.encode(a))
+        print(CharacterSurface.encode(a))
+
+    @staticmethod
+    def createString(s, x, y):
+        ret = []
+        i = 0
+        for c in s:
+            obj = None
+            ln = ord(c)
+            if ln >= 65 and ln <= 90: obj = CharacterSurface.l[ln - 65]
+            elif ln >= 97 and ln <= 122: obj = CharacterSurface.l[ln - 97]
+            elif ln >= 48 and ln <= 57: obj = CharacterSurface.n[ln - 48]
+            elif ln == 32: obj = CharacterSurface.sc[0]
+            # SPACE, <, >, -
+            elif ln == 60:  obj = CharacterSurface.sc[1]
+            elif ln == 62:  obj = CharacterSurface.sc[2]
+            elif ln == 45:  obj = CharacterSurface.sc[3]
+            else: raise ValueError("unknown character " + c + " which has code " + str(ord(c)))
+            clone = copy.copy(obj)
+            # TODO move x's based on width of letters and position in string
+            clone.setState(alive)
+            clone.x = x + (i * clone.frame.get_width())
+            clone.y = y
+            ret.append(clone)
+            i += 1
+        return ret
 
     @staticmethod
     def initCharacters():
         for l in letters: CharacterSurface.l.append(CharacterSurface(l))
         for n in numbers: CharacterSurface.n.append(CharacterSurface(n))
+        for s in specialCharacters: CharacterSurface.sc.append(CharacterSurface(s))
         CharacterSurface.addToScore(0)
-
-
+        CharacterSurface.headerDisplay = CharacterSurface.createString("score<1> hi-score score<2>", colSize * 2, 1)
+        CharacterSurface.footerDisplay = CharacterSurface.createString("credit", width - colSize * 5, height - rowSize)
+        #CharacterSurface.headerDisplay = CharacterSurface.createString("abcdefghijklmnopqrstuvwxyz 0123456789 <> -", 10, 40)
+        # CharacterSurface.encodeTest()
+    
     @staticmethod
     def decode(i):
         ba = bytearray(i.to_bytes(8, byteorder='big'))
@@ -513,8 +554,7 @@ class CharacterSurface(TimedSprite):
         ret = int.from_bytes(bytes_array, "big")
         return ret
 
-
-# class which deals with loading, scaling, animating and collision detecting and the pixelated images above
+# class which deals with loading, scaling, animating and collision detecting and the pixelated (arrays of 1's and 0's) images above
 class PixelSprite(TimedSprite):
     def __init__(self, pixelArrays, expArrays):
         TimedSprite.__init__(self)
@@ -522,16 +562,16 @@ class PixelSprite(TimedSprite):
         self.x = 0
         self.y = 0
         self.explosion_frames = []
-        f = PixelSprite.createFrames(pixelArrays)
+        f = PixelSprite.createFrames(pixelArrays, self.getDrawColour())
         self.frames, self.rects, self.masks = PixelSprite.scale(f, scale)
-        f = PixelSprite.createFrames(expArrays)
+        f = PixelSprite.createFrames(expArrays, self.getDrawColour())
         self.explosion_frames, self.explosion_rects, self.exposion_masks = PixelSprite.scale(f, scale)
         self.width = self.frames[0].get_width()
         self.height = self.frames[0].get_height()
         self.currentlyDisplayedFrame = self.frames[0]
 
     @staticmethod
-    def createFrames(aa):
+    def createFrames(aa, colour):
         ret = []
         w = len(aa[0][0])
         h = len(aa[0])
@@ -542,7 +582,7 @@ class PixelSprite(TimedSprite):
             for x in range(0, w):
                 for y in range(0, h):
                     if a[y][x]:
-                        ca[x, y] = WHITE
+                        ca[x, y] = colour
             del ca
             ret.append(s)
         return ret
@@ -605,7 +645,6 @@ class PixelSprite(TimedSprite):
         other.onHitEvent(self)
 
     def onHitEvent(self, other):
-        # TODO adjust scores?
         self.currentFrame = 0
         self.state = dying
 
@@ -626,7 +665,8 @@ class PixelSprite(TimedSprite):
         #r = self.getRect()
         #pygame.draw.rect(screen,WHITE,r)
 
-
+# there are 4 different kinds of shot in Space Invaders
+# This class deals with shots, and causes all the collision detection to be run
 class Shot(PixelSprite):
     # 0 = squiggly shot, 1 = ripply shot, 2 = ? shot, 3 = player short, 4 plungershot
     SA = [[plshot1], [sshot1, sshot2, sshot3, sshot4], [rshot1, rshot2, rshot3, rshot4], [rshot1, rshot2, rshot3, rshot4], [pshot1, pshot2, pshot3, pshot4]]
@@ -648,7 +688,7 @@ class Shot(PixelSprite):
         elif isinstance(other, Shield):
             # allow shot to penetrate shield before exploding
             # TODO player shots are reversed!
-            if self.y > (other.y - (self.getHeight() / 4)):
+            if self.y > (other.y - (self.getHeight() / 3)):
                 PixelSprite.onHitEvent(self, other)
         else:
             self.setState(dead)
@@ -675,6 +715,7 @@ class Shot(PixelSprite):
         else:
             # wait a second before allowing aliens to fire
             if pygame.time.get_ticks() < 1000: return
+            # TODO random number
             s.y = obj.y + obj.height
         s.setState(alive)
         s.currentFrame = 0
@@ -704,7 +745,11 @@ class Alien(PixelSprite):
 
     def getAnimationTickRate(self): return alienSpeed
     def getMoveTickRate(self): return alienSpeed
-
+    def getDrawColour(self): 
+        if self.row==0: return GREEN
+        if self.row == 2: return MAGENTA
+        if self.row > 2: return CYAN
+        return WHITE
     def calculateXY(self):
         self.y = (invasionLevel * rowSize) + rowSize * startRow + (rowSize * self.row) + (round * rowSize)
         self.x = (currentStep * stepSize) + (colSize) + (colSize * self.col)
@@ -767,9 +812,11 @@ class Player(PixelSprite):
     def __init__(self):
         PixelSprite.__init__(self, [player1], [playerEx1, playerEx2])
         self.x = width / 2
-        self.y = height - rowSize
+        self.y = height - (rowSize * 2)
         self.moveStep = 0
         self.setMoveTickRate(2)
+
+    def getDrawColour(self): return GREEN
 
     def onHitEvent(self, other):
         pass
@@ -797,7 +844,7 @@ class Saucer(PixelSprite):
         self.y = rowSize
         self.setMoveTickRate(15)
         self.setAnimationTickRate(25000)
-
+    def getDrawColour(self): return MAGENTA
     def animate(self):
         self.setState(alive)
 
@@ -822,18 +869,20 @@ class Shield(PixelSprite):
         self.xloc = x
         self.backupFrame = self.frames[0]
         self.x = x
-        self.y = height - (rowSize * 3)
+        self.y = height - (rowSize * 3.5)
         self.setMoveTickRate(10000000)
         self.setAnimationTickRate(10000000)
- 
+    def getDrawColour(self): return GREEN
     def getMask(self): return pygame.mask.from_surface(self.frames[0])
 
     def erode(self, other):
+        # TODO erosion not quite working properly
+        # TODO invaders should also erode bases
         ox = other.x - self.x
         oy = other.y - self.y
         m = pygame.mask.from_surface(other.currentlyDisplayedFrame)
-        self.frames[0] = pygame.mask.Mask.to_surface(m, surface=self.frames[0], unsetcolor=None, setcolor=TRANSPARENT, dest=(ox, oy))
-
+        self.frames[0] = pygame.mask.Mask.to_surface(m, surface=self.frames[0], unsetsurface=None, unsetcolor=None, setcolor=TRANSPARENT, dest=(ox, oy))
+ 
     def onHitEvent(self, other):
         self.setState(alive)
         self.erode(other)
